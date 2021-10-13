@@ -38,6 +38,7 @@
         <ZipFile Name="@ModName @Ver" RootDir="@ThisProject" Compression="deflate">
         	<Include>*.esp</Include>
             <Include>Scripts</Include>
+            <Include>SKSE</Include>
             <Include>Seq</Include>
             <Include>Source</Include>
             <Include>LICENSE</Include>
