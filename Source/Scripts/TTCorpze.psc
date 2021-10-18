@@ -6,7 +6,7 @@ Event OnActivate(ObjectReference akActionRef)
   Actor me = akActionRef as Actor
   If(me)
     If(me == Main.PlayerRef || me.IsPlayerTeammate())
-      Main.prepareEncounter(GetTargetActor())
+      Main.createEncounter(GetTargetActor(), me)
     EndIf
   EndIf
 EndEvent

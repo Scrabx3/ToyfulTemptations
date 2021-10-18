@@ -6,527 +6,342 @@ Actor Property PlayerRef Auto
 ; -------------------------------- Variables
 string filepath = "../ToyfulTemptations/LootTable.json"
 ; --- General
-
+; Drops
+string[] lootTypeList
+int Property iLootType = 0 Auto Hidden
 float Property fBaseChance = 7.5 Auto Hidden
-bool Property bMatchToy = true Auto Hidden
+bool Property bSplitChance = false Auto Hidden
+float Property fBaseChanceC = 2.0 Auto Hidden
+float Property fBaseChanceD = 7.5 Auto Hidden
+float Property fBaseChanceW = 4.0 Auto Hidden
+float Property fArousalWeight = 0.4 Auto Hidden
+; Container
+String[] TrapMethods
+int Property iMaxDrops = 4 Auto Hidden
+float Property fSwapChance = 50.0 Auto Hidden
+bool Property bFilterEmpty = true Auto Hidden
+int Property iTrapMethod = 0 Auto Hidden
+bool Property bTrapStrip = true Auto Hidden
+bool Property bNotifyOnTrap = false Auto Hidden
 float Property fToyChance = 10.0 Auto Hidden
-string[] restrictLootList
-int Property iChestTypeReg = 0 Auto Hidden
-int Property iMaxRolls = 3 Auto Hidden
-; --- Loot Table
-string[] lootPresets
-int presetIndex = 1
-; Key Weights
+bool Property bMatchToy = true Auto Hidden
+; Keys
 float Property fKeyChance = 5.0 Auto Hidden
-float Property fKeyRoleChance = 40.0 Auto Hidden
-int Property iKeyWeightBasic = 60 Auto Hidden
-int Property iKeyWeightBasicTiny = 50 Auto Hidden
-int Property iKeyWeightBasicExotic = 15 Auto Hidden
-int Property iKeyWeightBasicExoticTiny = 10 Auto Hidden
-; Profile Preview
-string Property dragonKey = "hazardous" Auto Hidden ; 1 Dragon
-string Property npcKey = "balanced" Auto Hidden ; 2 NPC
-string Property undeadKey = "risky" Auto Hidden ; 3 Undead
-string Property preyKey = "merciful" Auto Hidden ; 4 Prey
-string Property miscKey = "balanced" Auto Hidden ; 5 Misc
-string Property chestRareKey = "merciful" Auto Hidden ; 6 Rare Chest
-string Property chestKey = "balanced" Auto Hidden ; 7 Regular Chest
+float Property fKeyChanceAdd = 30.0 Auto Hidden
+int[] Property iKeyWeight Auto Hidden
+{Key - 60, Tiny - 50, Exotic - 15, Tiny Exotic - 10}
 ; --- Events
-int Property TTypeWeightHand = 30 Auto Hidden
-int Property TTypeWeightFeet = 40 Auto Hidden
-int Property TTypeWeightMouth = 70 Auto Hidden
-int Property TTypeWeightNeck = 60 Auto Hidden
-int Property TTypeWeightWrists = 20 Auto Hidden
-int Property TTypeWeightAnal = 40 Auto Hidden
-int Property TTypeWeightPelvis = 50 Auto Hidden
-int Property TTypeWeightGenital = 40 Auto Hidden
-int Property TTypeWeightNipples = 80 Auto Hidden
-int Property TTypeWeightLegs = 60 Auto Hidden
-int Property TTypeWeightEyes = 30 Auto Hidden
-int Property TTypeWeightBreasts = 20 Auto Hidden
-int Property TTypeWeightVaginal = 40 Auto Hidden
-int Property TTypeWeightTorso = 70 Auto Hidden
-int Property TTypeWeightArms = 60 Auto Hidden
+int[] Property TTypeWeights Auto Hidden
+{Hand - 30, Feet - 40, Mouth - 70, Neck - 60, Wrist - 20, Anal - 40, Pelvis - 50, Genital - 40, Nipples - 80, Legs - 60, Eyes - 30, Breast - 20, Vaginal - 40, Torso - 70, Arms - 60}
 
-; -------------------------------- O_IDs
-int oTTypeHand
-int oTTypeFeet
-int oTTypeMouth
-int oTTypeNeck
-int oTTypeWrists
-int oTTypeAnal
-int oTTypePelvis
-int oTTypeGenital
-int oTTypeNipples
-int oTTypeLegs
-int oTTypeEyes
-int oTTypeBreasts
-int oTTypeVaginal
-int oTTypeTorso
-int oTTypeArms
-
-; -------------------------------- Code
+; ===============================================================
+; =============================	STARTUP // UTILITY
+; ===============================================================
 int Function GetVersion()
 	return 1
 endFunction
 
-Function Initialize()
-	Pages = new string[3]
-  Pages[0] = " General"
-	Pages[1] = " Keys"
-	Pages[2] = " Events"
-
-	lootPresets = new string[3]
-	lootPresets[0] = " Easy"
-	lootPresets[1] = " Normal"
-	lootPresets[2] = " Hard"
-	; lootPresets[3] = "Cursed"
-
-	restrictLootList = new string[3]
-	restrictLootList[0] = "No Restrictions"
-	restrictLootList[1] = "Only Chests"
-	restrictLootList[2] = "Only Corpses"
-endFunction
-
-; ==================================
-; 							MENU
-; ==================================
-Event OnConfigInit()
-	Initialize()
+Event OnVersionUpdate(int newVers)
+	;
 EndEvent
 
-Event OnVersionUpdate(int newVers)
-	Initialize()
-endEvent
+Event OnConfigInit()
+	Pages = new string[2]
+  Pages[0] = "$TT_General"
+	Pages[1] = "$TT_Events"
 
+	lootTypeList = new string[3]
+	lootTypeList[0] = "$TT_LootType_0"
+	lootTypeList[1] = "$TT_LootType_1"
+	lootTypeList[2] = "$TT_LootType_2"
+
+	TrapMethods = new String[3]
+	TrapMethods[0] = "$TT_TrapMathoed_0"
+	TrapMethods[1] = "$TT_TrapMathoed_1"
+	TrapMethods[2] = "$TT_TrapMathoed_2"
+
+	iKeyWeight = new int[4]
+	iKeyWeight[0] = 60
+	iKeyWeight[1] = 50
+	iKeyWeight[2] = 15
+	iKeyWeight[3] = 10
+
+	TTypeWeights = new int[15]
+	TTypeWeights[0] = 30
+	TTypeWeights[1] = 40
+	TTypeWeights[2] = 70
+	TTypeWeights[3] = 60
+	TTypeWeights[4] = 20
+	TTypeWeights[5] = 40
+	TTypeWeights[6] = 50
+	TTypeWeights[7] = 40
+	TTypeWeights[8] = 80
+	TTypeWeights[9] = 60
+	TTypeWeights[10] = 30
+	TTypeWeights[11] = 20
+	TTypeWeights[12] = 40
+	TTypeWeights[13] = 70
+	TTypeWeights[14] = 60
+EndEvent
+
+; ===============================================================
+; =============================	MENU
+; ===============================================================
 Event OnPageReset(String Page)
   SetCursorFillMode(TOP_TO_BOTTOM)
   If(Page == "")
-    Page = " General"
+    Page = "$TT_General"
   EndIf
-  If(Page == " General")
-		AddHeaderOption(" Event Chance")
-    AddSliderOptionST("baseChance", "Base Chance", fBaseChance, "{1}%")
-		SetCursorPosition(1)
-		AddHeaderOption(" Containers")
-		AddMenuOptionST("rTRestrictChest", "Restrict Containers", restrictLootList[iChestTypeReg])
-		AddSliderOptionST("maxToyDrops", "Maximum Rolls per Container", iMaxRolls)
-		AddSliderOptionST("regularToy", "Regular Toy Chance", fToyChance, "{1}%")
-		AddHeaderOption(" Miscellaneous")
-		AddToggleOptionST("equipMatching", "Equip Matching Types", bMatchToy)
-	ElseIf(Page == " Keys")
-		AddSliderOptionST("KeyChance", "Key Dropchance", fKeyChance, "{1}%")
-		AddSliderOptionST("KeyRoles", "Additional Role Chance", fKeyRoleChance, "{1}%")
-		AddSliderOptionST("KeyWeight0", "Basic Key", iKeyWeightBasic)
-		AddSliderOptionST("KeyWeight1", "Tiny Key", iKeyWeightBasicTiny)
-		AddSliderOptionST("KeyWeight2", "Exotic Key", iKeyWeightBasicExotic)
-		AddSliderOptionST("KeyWeight3", "Tiny Exotic Key", iKeyWeightBasicExoticTiny)
-	ElseIf(Page == " Loot Table")
-		AddMenuOptionST("TableSelect", "Change Preset", lootPresets[presetIndex])
+  If(Page == "$TT_General")
+		AddHeaderOption("$TT_Drops")
+		AddMenuOptionST("lootType", "$TT_LootType", lootTypeList[iLootType])
+    AddSliderOptionST("baseChance", "$TT_BaseChance", fBaseChance, "{1}%", getFlag(!bSplitChance))
+		AddToggleOptionST("splitChance", "$TT_SplitChance", bSplitChance)
+    AddSliderOptionST("baseChanceC", "$TT_SplitChanceC", fBaseChanceC, "{1}%", getFlag(bSplitChance))
+    AddSliderOptionST("baseChanceD", "$TT_SplitChanceD", fBaseChanceD, "{1}%", getFlag(bSplitChance))
+    AddSliderOptionST("baseChanceW", "$TT_SplitChanceW", fBaseChanceW, "{1}%", getFlag(bSplitChance))
 		AddEmptyOption()
-		AddHeaderOption("Key Weights")
-		AddSliderOptionST("KeyRoles", "Additional Role Chance", fKeyRoleChance, "{1}%")
-		AddSliderOptionST("KeyWeight0", "Basic Key", iKeyWeightBasic)
-		AddSliderOptionST("KeyWeight1", "Tiny Key", iKeyWeightBasicTiny)
-		AddSliderOptionST("KeyWeight2", "Exotic Key", iKeyWeightBasicExotic)
-		AddSliderOptionST("KeyWeight3", "Tiny Exotic Key", iKeyWeightBasicExoticTiny)
-		; --------------------------------------------
+		AddSliderOptionST("arousalWeight", "$TT_ArousalWeight", fArousalWeight, "{2}")
 		SetCursorPosition(1)
-		AddTextOption("Tier: Dragon", dragonKey, OPTION_FLAG_DISABLED)
-		AddTextOption("Tier: NPC", npcKey, OPTION_FLAG_DISABLED)
-		AddTextOption("Tier: Undead", undeadKey, OPTION_FLAG_DISABLED)
-		AddTextOption("Tier: Prey", preyKey, OPTION_FLAG_DISABLED)
-		AddTextOption("Tier: Misc Creatures", miscKey, OPTION_FLAG_DISABLED)
-		AddEmptyOption()
-		AddTextOption("Tier: Rare Chests", chestRareKey, OPTION_FLAG_DISABLED)
-		AddTextOption("Tier: Regular Chests", chestKey, OPTION_FLAG_DISABLED)
-		; --------------------------------------------
-	ElseIf(Page == " Events")
+		AddHeaderOption("$TT_Miscellaneous")
+		AddSliderOptionST("MaxDrops", "$TT_MaxDrops", iMaxDrops)
+		AddSliderOptionST("SwapChance", "$TT_SwapChance", fSwapChance, "{1}%")
+		AddToggleOptionST("filterEmpty", "$TT_FilterEmpty", bFilterEmpty)
+		AddMenuOptionST("trapMethod", "$TT_TrapMethod", TrapMethods[iTrapMethod])
+		AddToggleOptionST("trapStrip", "$TT_TrapStrip", bTrapStrip)
+		AddToggleOptionST("trapNotify", "$TT_TrapNotify", bNotifyOnTrap)
+		AddSliderOptionST("regularToy", "$TT_ChanceRegular", fToyChance, "{1}%")
+		AddToggleOptionST("equipMatching", "$TT_EquipMatching", bMatchToy)
+		AddHeaderOption("$TT_Keys")
+		AddSliderOptionST("KeyChance", "$TT_KeyChance", fKeyChance, "{1}%")
+		AddSliderOptionST("KeyChanceAdd", "$TT_KeyChanceAdd", fKeyChanceAdd, "{1}%")
+		int i = 0
+		While(i < iKeyWeight.Length)
+			AddSliderOptionST("keyWeight_" + i, "$TT_Key_" + i, iKeyWeight[i], "{0}")
+			i += 1
+		EndWhile
+	ElseIf(Page == "$TT_Events")
 		SetCursorFillMode(LEFT_TO_RIGHT)
-		AddHeaderOption(" Basic Events")
+		AddHeaderOption("$TT_Events")
 		AddEmptyOption()
-		oTTypeHand = AddSliderOPtion("Hand Toy", TTypeWeightHand)
-		oTTypeFeet = AddSliderOPtion("Feet Toy", TTypeWeightFeet)
-		oTTypeMouth = AddSliderOPtion("Mouth Toy", TTypeWeightMouth)
-		oTTypeNeck = AddSliderOPtion("Neck Toy", TTypeWeightNeck)
-		oTTypeWrists = AddSliderOPtion("Wrist Toy", TTypeWeightWrists)
-		oTTypeAnal = AddSliderOPtion("Anal Toy", TTypeWeightAnal)
-		oTTypePelvis = AddSliderOPtion("Pelvis Toy", TTypeWeightPelvis)
-		oTTypeGenital = AddSliderOPtion("Genital Toy", TTypeWeightGenital)
-		oTTypeNipples = AddSliderOPtion("Nipple Toy", TTypeWeightNipples)
-		oTTypeLegs = AddSliderOPtion("Leg Toy", TTypeWeightLegs)
-		oTTypeEyes = AddSliderOPtion("Eye Toy", TTypeWeightEyes)
-		oTTypeBreasts = AddSliderOPtion("Breasts Toy", TTypeWeightBreasts)
-		oTTypeVaginal = AddSliderOPtion("Vaginal Toy", TTypeWeightVaginal)
-		oTTypeTorso = AddSliderOPtion("Torso Toy", TTypeWeightTorso)
-		oTTypeArms = AddSliderOPtion("Arm Toy", TTypeWeightArms)
-		AddEmptyOption()
-		; SetCursorPosition(1)
-		; AddHeaderOption(" Special Events")
-		; AddTextOPtion("N/A; Comming soon", none, OPTION_FLAG_DISABLED)
+		int i = 0
+		While(i < TTypeWeights.Length)
+			AddSliderOptionST("TTWeight_" + i, "$TT_TType_" + i, TTypeWeights[i], "{0}")
+			i += 1
+		EndWhile
   EndIf
 EndEvent
 
-; ==================================
-; 				States /// General
-; ==================================
-State baseChance
-  Event OnSliderOpenST()
-		SetSliderDialogStartValue(fBaseChance)
-		SetSliderDialogDefaultValue(7.5)
-		SetSliderDialogRange(0, 100)
-		SetSliderDialogInterval(0.5)
-	EndEvent
-	Event OnSliderAcceptST(float value)
-		fBaseChance = value
-		SetSliderOptionValueST(fBaseChance, "{1}%")
-	EndEvent
-	Event OnHighlightST()
-		SetInfoText("Basechance for an Event to happen.")
-	EndEvent
-EndState
-
-State equipMatching
-	Event OnSelectST()
+; ===============================================================
+; =============================	TOGGLE OPTION
+; ===============================================================
+Event OnSelectST()
+	String[] option = PapyrusUtil.StringSplit(GetState(), "_")
+	If(option[0] == "splitChance")
+		bSplitChance = !bSplitChance
+		SetToggleOptionValueST(bSplitChance)
+		SetOptionFlagsST(getFlag(!bSplitChance), true, "baseChance")
+		SetOptionFlagsST(getFlag(bSplitChance), true, "baseChanceC")
+		SetOptionFlagsST(getFlag(bSplitChance), true, "baseChanceD")
+		SetOptionFlagsST(getFlag(bSplitChance), false, "baseChanceW")
+	ElseIf(option[0] == "filterEmpty")
+		bFilterEmpty = !bFilterEmpty
+		SetToggleOptionValueST(bFilterEmpty)
+	ElseIf(option[0] == "trapStrip")
+		bTrapStrip = !bTrapStrip
+		SetToggleOptionValueST(bTrapStrip)
+	ElseIf(option[0] == "trapNotify")
+		bNotifyOnTrap = !bNotifyOnTrap
+		SetToggleOptionValueST(bNotifyOnTrap)
+	ElseIf(option[0] == "equipMatching")
 		bMatchToy = !bMatchToy
 		SetToggleOptionValueST(bMatchToy)
-	EndEvent
-	Event OnHighlightST()
-		SetInfoText("Prefer Toys from the same Toy Box or choose randomly between all available Restraints?")
-	EndEvent
-EndState
+	EndIf
+EndEvent
 
-State rTRestrictChest
-	Event OnMenuOpenST()
-		SetMenuDialogStartIndex(iChestTypeReg)
-		SetMenuDialogDefaultIndex(1)
-		SetMenuDialogOptions(restrictLootList)
-	EndEvent
-	Event OnMenuAcceptST(int index)
-		iChestTypeReg = index
-		SetMenuOptionValueST(restrictLootList[iChestTypeReg])
-	EndEvent
-	Event OnDefaultST()
-		iChestTypeReg = 1
-		SetMenuOptionValueST(restrictLootList[iChestTypeReg])
-	EndEvent
-	Event OnHighlightST()
-		SetInfoText("Restrict which Containers can contain Toys")
-	EndEvent
-EndState
-
-State regularToy
-	Event OnSliderOpenST()
-		SetSliderDialogStartValue(fToyChance)
-		SetSliderDialogDefaultValue(10.0)
+; ===============================================================
+; =============================	SLIDER OPTION
+; ===============================================================
+Event OnSliderOpenST()
+	String[] option = PapyrusUtil.StringSplit(GetState(), "_")
+	If(option[0] == "baseChance")
+		SetSliderDialogStartValue(fBaseChance)
+		SetSliderDialogDefaultValue(5)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(0.5)
-	EndEvent
-	Event OnSliderAcceptST(float value)
-		fToyChance = value
-		SetSliderOptionValueST(fToyChance, "{1}%")
-	EndEvent
-	Event OnHighlightST()
-		SetInfoText("Chance that a non-trapped Toy can be found inside a Container.\n(A Toy that doesn't equip itself)")
-	EndEvent
-EndState
-
-State maxToyDrops
-	Event OnSliderOpenST()
-		SetSliderDialogStartValue(iMaxRolls)
+	ElseIf(option[0] == "baseChanceC")
+		SetSliderDialogStartValue(fBaseChanceC)
+		SetSliderDialogDefaultValue(2)
+		SetSliderDialogRange(0, 100)
+		SetSliderDialogInterval(0.5)
+	ElseIf(option[0] == "baseChanceD")
+		SetSliderDialogStartValue(fBaseChanceD)
+		SetSliderDialogDefaultValue(7)
+		SetSliderDialogRange(0, 100)
+		SetSliderDialogInterval(0.5)
+	ElseIf(option[0] == "baseChanceW")
+		SetSliderDialogStartValue(fBaseChanceW)
+		SetSliderDialogDefaultValue(4)
+		SetSliderDialogRange(0, 100)
+		SetSliderDialogInterval(0.5)
+	ElseIf(option[0] == "arousalWeight")
+		SetSliderDialogStartValue(fArousalWeight)
+		SetSliderDialogDefaultValue(0.3)
+		SetSliderDialogRange(0, 1)
+		SetSliderDialogInterval(0.01)
+	ElseIf(option[0] == "MaxDrops")
+		SetSliderDialogStartValue(iMaxDrops)
 		SetSliderDialogDefaultValue(3)
-		SetSliderDialogRange(0, 10)
+		SetSliderDialogRange(1, 15)
 		SetSliderDialogInterval(1)
-	EndEvent
-	Event OnSliderAcceptST(float value)
-		iMaxRolls = value as int
-		SetSliderOptionValueST(iMaxRolls)
-	EndEvent
-	Event OnHighlightST()
-		SetInfoText("How many times can a single Container check for Drops?\n(This will roll for Trapped & Non-Trapped Toys for each check respectively)")
-	EndEvent
-EndState
-
-; ==================================
-; 			States /// Loot Table
-; ==================================
-State TableSelect
-	Event OnMenuOpenST()
-		SetMenuDialogStartIndex(presetIndex)
-		SetMenuDialogDefaultIndex(1)
-		SetMenuDialogOptions(lootPresets)
-	EndEvent
-	Event OnMenuAcceptST(int index)
-		presetIndex = index
-		SetMenuOptionValueST(lootPresets[presetIndex])
-		string[] keyfile = StringListToArray(filepath, lootPresets[presetIndex])
-		dragonKey = keyfile[0]
-		npcKey = keyfile[1]
-		undeadKey = keyfile[2]
-		preyKey = keyfile[3]
-		miscKey = keyfile[4]
-		chestRareKey = keyfile[5]
-		chestKey = keyfile[6]
-		Utility.WaitMenuMode(0.1)
-		ForcePageReset()
-	EndEvent
-	Event OnDefaultST()
-		presetIndex = 0
-		SetMenuOptionValueST(lootPresets[presetIndex])
-		ForcePageReset()
-	EndEvent
-	Event OnHighlightST()
-		SetInfoText("Change your Preset. A Preset dictates how likely certain drops are from chests.")
-	endEvent
-EndState
-
-State KeyChance
-	Event OnSliderOpenST()
+	ElseIf(option[0] == "SwapChance")
+		SetSliderDialogStartValue(fSwapChance)
+		SetSliderDialogDefaultValue(33)
+		SetSliderDialogRange(0, 100)
+		SetSliderDialogInterval(0.5)
+	ElseIf(option[0] == "regularToy")
+		SetSliderDialogStartValue(fToyChance)
+		SetSliderDialogDefaultValue(10)
+		SetSliderDialogRange(0, 100)
+		SetSliderDialogInterval(0.5)
+	ElseIf(option[0] == "KeyChance")
 		SetSliderDialogStartValue(fKeyChance)
 		SetSliderDialogDefaultValue(5)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(0.5)
-	EndEvent
-	Event OnSliderAcceptST(float value)
-		fKeyChance = value
-		SetSliderOptionValueST(fKeyChance, "{1}%")
-	EndEvent
-	Event OnHighlightST()
-		SetInfoText("Chance for a Key to appear in a Container.")
-	EndEvent
-EndState
-
-State KeyRoles
-	Event OnSliderOpenST()
-		SetSliderDialogStartValue(fKeyRoleChance)
-		SetSliderDialogDefaultValue(40)
-		SetSliderDialogRange(0, 60)
+	ElseIf(option[0] == "KeyChanceAdd")
+		SetSliderDialogStartValue(fKeyChanceAdd)
+		SetSliderDialogDefaultValue(30)
+		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(0.5)
-	EndEvent
-	Event OnSliderAcceptST(float value)
-		fKeyRoleChance = value
-		SetSliderOptionValueST(fKeyRoleChance, "{1}%")
-	EndEvent
-	Event OnHighlightST()
-		SetInfoText("When a Key Drops, how likely is it for a second one to drop?\n*Base Chance for Key Drops is defined inside the Loot Tables.\nChance will decrease with every drop, maximum of 5 Keys can drop at once. Set to 0 to disable.")
-	EndEvent
-EndState
-
-State KeyWeight0
-	Event OnSliderOpenST()
-		SetSliderDialogStartValue(iKeyWeightBasic)
-		SetSliderDialogDefaultValue(60)
+	ElseIf(option[0] == "keyWeight")
+		int i = option[1] as int
+		SetSliderDialogStartValue(iKeyWeight[i])
+		SetSliderDialogDefaultValue(40)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
-	EndEvent
-	Event OnSliderAcceptST(float value)
-		iKeyWeightBasic = value as int
-		SetSliderOptionValueST(iKeyWeightBasic)
-	EndEvent
-	Event OnHighlightST()
-		SetInfoText("Relative Chance of getting a regular Key.")
-	EndEvent
-EndState
-
-State KeyWeight1
-	Event OnSliderOpenST()
-		SetSliderDialogStartValue(iKeyWeightBasicTiny)
+	ElseIf(option[0] == "TTWeight")
+		int i = option[1] as int
+		SetSliderDialogStartValue(TTypeWeights[i])
 		SetSliderDialogDefaultValue(50)
-		SetSliderDialogRange(0, 100)
-		SetSliderDialogInterval(1)
-	EndEvent
-	Event OnSliderAcceptST(float value)
-		iKeyWeightBasicTiny = value as int
-		SetSliderOptionValueST(iKeyWeightBasicTiny)
-	EndEvent
-	Event OnHighlightST()
-		SetInfoText("Relative Chance of getting a regular tiny Key.")
-	EndEvent
-EndState
-
-State KeyWeight2
-	Event OnSliderOpenST()
-		SetSliderDialogStartValue(iKeyWeightBasicExotic)
-		SetSliderDialogDefaultValue(15)
-		SetSliderDialogRange(0, 100)
-		SetSliderDialogInterval(1)
-	EndEvent
-	Event OnSliderAcceptST(float value)
-		iKeyWeightBasicExotic = value as int
-		SetSliderOptionValueST(iKeyWeightBasicExotic)
-	EndEvent
-	Event OnHighlightST()
-		SetInfoText("Relative Chance of getting an Exotic Key.")
-	EndEvent
-EndState
-
-State KeyWeight3
-	Event OnSliderOpenST()
-		SetSliderDialogStartValue(iKeyWeightBasicExoticTiny)
-		SetSliderDialogDefaultValue(10)
-		SetSliderDialogRange(0, 100)
-		SetSliderDialogInterval(1)
-	EndEvent
-	Event OnSliderAcceptST(float value)
-		iKeyWeightBasicExoticTiny = value as int
-		SetSliderOptionValueST(iKeyWeightBasicExoticTiny)
-	EndEvent
-	Event OnHighlightST()
-		SetInfoText("Relative Chance of getting a tiny Exotic Key.")
-	EndEvent
-EndState
-
-; ==================================
-; 				NON-STATE OPTIONS
-; ==================================
-Event OnOptionSliderOpen(int option)
-	If(option == oTTypeHand)
-		SetSliderDialogStartValue(TTypeWeightHand)
-		SetSliderDialogDefaultValue(30)
-		SetSliderDialogRange(0, 100)
-		SetSliderDialogInterval(1)
-	ElseIf (option == oTTypeFeet)
-		SetSliderDialogStartValue(TTypeWeightFeet)
-		SetSliderDialogDefaultValue(40)
-		SetSliderDialogRange(0, 100)
-		SetSliderDialogInterval(1)
-	ElseIf (option == oTTypeMouth)
-		SetSliderDialogStartValue(TTypeWeightMouth)
-		SetSliderDialogDefaultValue(70)
-		SetSliderDialogRange(0, 100)
-		SetSliderDialogInterval(1)
-	ElseIf (option == oTTypeNeck)
-		SetSliderDialogStartValue(TTypeWeightNeck)
-		SetSliderDialogDefaultValue(60)
-		SetSliderDialogRange(0, 100)
-		SetSliderDialogInterval(1)
-	ElseIf (option == oTTypeWrists)
-		SetSliderDialogStartValue(TTypeWeightWrists)
-		SetSliderDialogDefaultValue(20)
-		SetSliderDialogRange(0, 100)
-		SetSliderDialogInterval(1)
-	ElseIf (option == oTTypeAnal)
-		SetSliderDialogStartValue(TTypeWeightAnal)
-		SetSliderDialogDefaultValue(40)
-		SetSliderDialogRange(0, 100)
-		SetSliderDialogInterval(1)
-	ElseIf (option == oTTypePelvis)
-		SetSliderDialogStartValue(TTypeWeightPelvis)
-		SetSliderDialogDefaultValue(50)
-		SetSliderDialogRange(0, 100)
-		SetSliderDialogInterval(1)
-	ElseIf (option == oTTypeGenital)
-		SetSliderDialogStartValue(TTypeWeightGenital)
-		SetSliderDialogDefaultValue(40)
-		SetSliderDialogRange(0, 100)
-		SetSliderDialogInterval(1)
-	ElseIf (option == oTTypeNipples)
-		SetSliderDialogStartValue(TTypeWeightNipples)
-		SetSliderDialogDefaultValue(80)
-		SetSliderDialogRange(0, 100)
-		SetSliderDialogInterval(1)
-	ElseIf (option == oTTypeLegs)
-		SetSliderDialogStartValue(TTypeWeightLegs)
-		SetSliderDialogDefaultValue(60)
-		SetSliderDialogRange(0, 100)
-		SetSliderDialogInterval(1)
-	ElseIf (option == oTTypeEyes)
-		SetSliderDialogStartValue(TTypeWeightEyes)
-		SetSliderDialogDefaultValue(30)
-		SetSliderDialogRange(0, 100)
-		SetSliderDialogInterval(1)
-	ElseIf (option == oTTypeBreasts)
-		SetSliderDialogStartValue(TTypeWeightBreasts)
-		SetSliderDialogDefaultValue(20)
-		SetSliderDialogRange(0, 100)
-		SetSliderDialogInterval(1)
-	ElseIf (option == oTTypeVaginal)
-		SetSliderDialogStartValue(TTypeWeightVaginal)
-		SetSliderDialogDefaultValue(40)
-		SetSliderDialogRange(0, 100)
-		SetSliderDialogInterval(1)
-	ElseIf (option == oTTypeTorso)
-		SetSliderDialogStartValue(TTypeWeightTorso)
-		SetSliderDialogDefaultValue(70)
-		SetSliderDialogRange(0, 100)
-		SetSliderDialogInterval(1)
-	ElseIf (option == oTTypeArms)
-		SetSliderDialogStartValue(TTypeWeightArms)
-		SetSliderDialogDefaultValue(60)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	EndIf
 EndEvent
 
-Event OnOptionSliderAccept(int option, float value)
-	If(option == oTTypeHand)
-		TTypeWeightHand = value as int
-		SetSliderOptionValue(oTTypeHand, TTypeWeightHand)
-	ElseIf(option == oTTypeFeet)
-		TTypeWeightFeet = value as int
-		SetSliderOptionValue(oTTypeFeet, TTypeWeightFeet)
-	ElseIf(option == oTTypeMouth)
-		TTypeWeightMouth = value as int
-		SetSliderOptionValue(oTTypeMouth, TTypeWeightMouth)
-	ElseIf(option == oTTypeNeck)
-		TTypeWeightNeck = value as int
-		SetSliderOptionValue(oTTypeNeck, TTypeWeightNeck)
-	ElseIf(option == oTTypeWrists)
-		TTypeWeightWrists = value as int
-		SetSliderOptionValue(oTTypeWrists, TTypeWeightWrists)
-	ElseIf(option == oTTypeAnal)
-		TTypeWeightAnal = value as int
-		SetSliderOptionValue(oTTypeAnal, TTypeWeightAnal)
-	ElseIf(option == oTTypePelvis)
-		TTypeWeightPelvis = value as int
-		SetSliderOptionValue(oTTypePelvis, TTypeWeightPelvis)
-	ElseIf(option == oTTypeGenital)
-		TTypeWeightGenital = value as int
-		SetSliderOptionValue(oTTypeGenital, TTypeWeightGenital)
-	ElseIf(option == oTTypeNipples)
-		TTypeWeightNipples = value as int
-		SetSliderOptionValue(oTTypeNipples, TTypeWeightNipples)
-	ElseIf(option == oTTypeLegs)
-		TTypeWeightLegs = value as int
-		SetSliderOptionValue(oTTypeLegs, TTypeWeightLegs)
-	ElseIf(option == oTTypeEyes)
-		TTypeWeightEyes = value as int
-		SetSliderOptionValue(oTTypeEyes, TTypeWeightEyes)
-	ElseIf(option == oTTypeBreasts)
-		TTypeWeightBreasts = value as int
-		SetSliderOptionValue(oTTypeBreasts, TTypeWeightBreasts)
-	ElseIf(option == oTTypeVaginal)
-		TTypeWeightVaginal = value as int
-		SetSliderOptionValue(oTTypeVaginal, TTypeWeightVaginal)
-	ElseIf(option == oTTypeTorso)
-		TTypeWeightTorso = value as int
-		SetSliderOptionValue(oTTypeTorso, TTypeWeightTorso)
-	ElseIf(option == oTTypeArms)
-		TTypeWeightArms = value as int
-		SetSliderOptionValue(oTTypeArms, TTypeWeightArms)
+Event OnSliderAcceptST(Float afValue)
+	String[] option = PapyrusUtil.StringSplit(GetState(), "_")
+	If(option[0] == "baseChance")
+		fBaseChance = afValue
+		SetSliderOptionValueST(fBaseChance, "{1}%")
+	ElseIf(option[0] == "baseChanceC")
+		fBaseChanceC = afValue
+		SetSliderOptionValueST(fBaseChanceC, "{1}%")
+	ElseIf(option[0] == "baseChanceD")
+		fBaseChanceD = afValue
+		SetSliderOptionValueST(fBaseChanceD, "{1}%")
+	ElseIf(option[0] == "baseChanceW")
+		fBaseChanceW = afValue
+		SetSliderOptionValueST(fBaseChanceW, "{1}%")
+	ElseIf(option[0] == "arousalWeight")
+		fArousalWeight = afValue
+		SetSliderOptionValueST(fArousalWeight, "{2}")
+	ElseIf(option[0] == "MaxDrops")
+		iMaxDrops = afValue as Int
+		SetSliderOptionValueST(iMaxDrops)
+	ElseIf(option[0] == "SwapChance")
+		fSwapChance = afValue
+		SetSliderOptionValueST(fSwapChance, "{1}%")
+	ElseIf(option[0] == "regularToy")
+		fToyChance = afValue
+		SetSliderOptionValueST(fToyChance, "{1}%")
+	ElseIf(option[0] == "KeyChance")
+		fKeyChance = afValue
+		SetSliderOptionValueST(fKeyChance, "{1}%")
+	ElseIf(option[0] == "KeyChanceAdd")
+		fKeyChanceAdd = afValue
+		SetSliderOptionValueST(fKeyChanceAdd, "{1}%")
+	ElseIf(option[0] == "keyWeight")
+		int i = option[1] as int
+		iKeyWeight[i] = afValue as Int
+		SetSliderOptionValueST(iKeyWeight[i])
+	ElseIf(option[0] == "TTWeight")
+		int i = option[1] as int
+		TTypeWeights[i] = afValue as Int
+		SetSliderOptionValueST(TTypeWeights[i])
 	EndIf
 EndEvent
 
-; ------------------------- Utility
-int Function getFlagFloat(float val)
-	If(val)
+; ===============================================================
+; =============================	MENU OPTION
+; ===============================================================
+Event OnMenuOpenST()
+	String[] option = PapyrusUtil.StringSplit(GetState(), "_")
+	If(option[0] == "lootType")
+		SetMenuDialogStartIndex(iLootType)
+		SetMenuDialogDefaultIndex(0)
+		SetMenuDialogOptions(lootTypeList)
+	ElseIf(option[0] == "trapMethod")
+		SetMenuDialogStartIndex(iTrapMethod)
+		SetMenuDialogDefaultIndex(0)
+		SetMenuDialogOptions(TrapMethods)
+	EndIf
+EndEvent
+
+Event OnMenuAcceptST(Int aiIndex)
+	String[] option = PapyrusUtil.StringSplit(GetState(), "_")
+	If(option[0] == "lootType")
+		iLootType = aiIndex
+		SetMenuOptionValueST(lootTypeList[iLootType])
+	ElseIf(option[0] == "trapMethod")
+		iTrapMethod = aiIndex
+		SetMenuOptionValueST(TrapMethods[iTrapMethod])
+	EndIf
+EndEvent
+
+; ===============================================================
+; =============================	HIGHLIGHTS
+; ===============================================================
+Event OnHighlightST()
+	String[] option = PapyrusUtil.StringSplit(GetState(), "_")
+	If(option[0] == "lootType")
+		SetInfoText("$TT_LootTypeHighlight")
+	ElseIf(option[0] == "splitChance")
+		SetInfoText("$TT_SplitChanceHighlight")
+	ElseIf(option[0] == "arousalWeight")
+		SetInfoText("$TT_ArousalWeightHighlight")
+	ElseIf(option[0] == "MaxDrops")
+		SetInfoText("$TT_MaxDropsHighlight")
+	ElseIf(option[0] == "SwapChance")
+		SetInfoText("$TT_SwapChanceHighlight")
+	ElseIf(option[0] == "FilterEmpty")
+		SetInfoText("$TT_FilterEmptyHighlight")
+	ElseIf(option[0] == "trapMethod")
+		SetInfoText("$TT_TrapMethodHighlight")
+	ElseIf(option[0] == "trapStrip")
+		SetInfoText("$TT_TrapStripHighlight")
+	ElseIf(option[0] == "trapNotify")
+		SetInfoText("$TT_TrapNotifyHighlight")
+	ElseIf(option[0] == "regularToy")
+		SetInfoText("$TT_ChanceRegularHighlight")
+	ElseIf(option[0] == "equipMatching")
+		SetInfoText("$TT_EquipMatchingHighlight")
+	ElseIf(option[0] == "KeyChance")
+		SetInfoText("$TT_KeyChanceHighlight")
+	ElseIf(option[0] == "KeyChanceAdd")
+		SetInfoText("$TT_KeyChanceAddHighlight")
+	EndIf
+EndEvent
+
+; ===============================================================
+; =============================	UTILITY
+; ===============================================================
+
+; Return "NONE" flag if "option" parameter evaluates true
+int Function getFlag(bool option)
+	If(option)
 		return OPTION_FLAG_NONE
 	else
 		return OPTION_FLAG_DISABLED
 	EndIf
 EndFunction
-
-; State hahaha
-; 	Event OnSelectST()
-; 		IntListAdd(filepath, "balanced", 35)
-; 		IntListAdd(filepath, "balanced", 35)
-; 		IntListAdd(filepath, "balanced", 30)
-; 		StringListAdd(filepath, " Easy", "risky")
-; 		StringListAdd(filepath, " Easy", "forgiving")
-; 		StringListAdd(filepath, " Easy", "balanced")
-; 		StringListAdd(filepath, " Easy", "merciful")
-; 		StringListAdd(filepath, " Easy", "forgiving")
-; 		StringListAdd(filepath, " Easy", "simple")
-; 		StringListAdd(filepath, " Easy", "balanced")
-; 	EndEvent
-; EndState
