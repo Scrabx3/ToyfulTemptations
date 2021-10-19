@@ -18,7 +18,7 @@ float Property fArousalWeight = 0.4 Auto Hidden
 ; Container
 String[] TrapMethods
 int Property iMaxDrops = 4 Auto Hidden
-float Property fSwapChance = 50.0 Auto Hidden
+float Property fSwapChance = 33.0 Auto Hidden
 bool Property bFilterEmpty = true Auto Hidden
 int Property iTrapMethod = 0 Auto Hidden
 bool Property bTrapStrip = true Auto Hidden

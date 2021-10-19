@@ -9,7 +9,7 @@
     <Variables>
         <Variable Name="ModName" Value="ToyfulTemptations"/>
         <Variable Name="ThisProject" Value="."/>
-        <Variable Name="Rel" Value=".\.releases"/>
+        <Variable Name="Rel" Value=".\.release"/>
         <Variable Name="MO2" Value=".."/>
         <Variable Name="Ver" Value="2.0"/>
     </Variables>

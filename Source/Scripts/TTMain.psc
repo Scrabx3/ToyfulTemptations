@@ -7,7 +7,7 @@ TTMCM Property MCM Auto
 ToysFramework Property Toys Auto
 slaFrameworkScr Property SLA Auto
 Actor Property PlayerRef Auto
-Keyword Property LocTypeHabitation Auto
+Keyword Property LocTypeHabitation Auto ; Stores LocTypeDwelling - TT 2.0
 Keyword Property LocTypeDungeon Auto
 Keyword Property ActorTypeDragon Auto
 Faction Property PreyFaction Auto
@@ -16,12 +16,11 @@ Race Property HareRace Auto ; Bunny
 Key[] Property ToysKeys Auto
 {Key, Tiny, Exotic, Tiny Exotic}
 ; Event
-ImageSpaceModifier Property FadeToBlackFastImod Auto
+ImageSpaceModifier Property FadeToBlackFastImod Auto ; Stores Vanilla slow one - TT 2.0
 ImageSpaceModifier Property FadeToBlackHoldImod Auto
 ImageSpaceModifier Property FadeToBlackBackImod Auto
 ImageSpaceModifier Property RushedImod Auto
 ; -------------------------------- Variables
-string filePath = "../ToyfulTemptations/LootTable.json"
 ObjectReference[] chestCache
 int cacheIndex = 0
 bool msgOnce = true
@@ -49,7 +48,6 @@ Function CreateEncounter(ObjectReference p, Actor a)
     return
   EndIf
   Debug.Trace("[TT] Creating Encounter")
-  Toys.SetBusy(true)
   Actor corpse = p as Actor
   float chanceMult = 0
   If(corpse && MCM.iLootType != 1)
@@ -63,16 +61,22 @@ Function CreateEncounter(ObjectReference p, Actor a)
   ElseIf(MCM.iLootType != 2)
     chanceMult = 1
   EndIf
+  Debug.Trace("[TT] chanceMult: " + chanceMult)
   ; Add to Container
   int n = 0
   While(Utility.RandomFloat(0.0, 99.5) < MCM.fToyChance && n < 4) ; Add Container
-    p.AddItem(Toys.GetToy("TT", available = false, prefer = false))
+    Debug.Trace("[TT] Adding Non Trapped Item To Container")
+    Armor toy = Toys.GetToy("TT", available = false, prefer = false)
+    If(toy)
+      p.AddItem(toy)
+    EndIf
     n += 1
   EndWhile
   If(Utility.RandomFloat(0.5, 100.0) <= (MCM.fKeyChance * chanceMult))
     Form[] keys = CreateKeys()
+    Debug.Trace("[TT] Adding Keys to Container: " + keys.Length)
     int i = 0
-    While(i < keys.length)
+    While(i < keys.Length)
       p.AddItem(keys[i], 1, true)
       i += 1
     EndWhile
@@ -92,21 +96,24 @@ Function CreateEncounter(ObjectReference p, Actor a)
   Else
     trapChance *= MCM.fBaseChance
   EndIf
-  int[] freeSlots = CreateValidSlots()
-  bool firstTrigger = true
-  int i = 0
-  While(i < MCM.iMaxDrops)
-    If(Utility.RandomFloat(0.0, 99.9) < trapChance) ; Trap
+  Debug.Trace("[TT] Trap Chance: " + trapChance)
+  If(Utility.RandomFloat(0.0, 99.9) < trapChance)
+    int[] freeSlots = CreateValidSlots()
+    bool firstTrigger = true
+    bool break = false
+    int i = 0
+    While(i < MCM.iMaxDrops && break == false)
       Utility.Wait(0.01) ; Don't do this before we didnt close the Container
       If(!CreateTrap(freeSlots))
-        return
-      EndIf
-      If(firstTrigger)
-        Game.DisablePlayerControls()
+        Debug.Trace("[TT] Unable to create Trap")
+      ElseIf(firstTrigger)
+        Debug.Trace("[TT] Created first Trap")
+        firstTrigger = false
         If(MCM.iTrapMethod == 0) ; Bleedout
-          Debug.SendAnimationEvent(a, "BleedoutEnter")
+          Game.DisablePlayerControls()
+          Debug.SendAnimationEvent(a, "BleedoutStart")
           FadeToBlackFastImod.Apply()
-          Utility.Wait(0.5)
+          Utility.Wait(1.7)
           FadeToBlackFastImod.PopTo(FadeToBlackHoldImod)
         ElseIf(MCM.iTrapMethod == 1) ; Toys
           Toys.WuusshEffect(PlayerRef)
@@ -132,11 +139,14 @@ Function CreateEncounter(ObjectReference p, Actor a)
           msgOnce = false
         EndIf
       EndIf
-    EndIf
-    i += 1
-  EndWhile
+      If(Utility.RandomInt(0, 99) < 45)
+        break = true
+      EndIf
+      i += 1
+    EndWhile
+  EndIf
   If(MCM.iTrapMethod == 0)
-    Debug.SendAnimationEvent(a, "BleedoutExit")
+    Debug.SendAnimationEvent(a, "BleedoutStop")
     FadeToBlackHoldImod.PopTo(FadeToBlackBackImod)
   EndIf
   Game.EnablePlayerControls()
@@ -146,15 +156,15 @@ Function CreateEncounter(ObjectReference p, Actor a)
   If(cacheIndex >= chestCache.Length)
     cacheIndex = 0
   EndIf
-  ; Cleanup
-  Toys.SetBusy(false)
 EndFunction
 
 int[] Function CreateValidSlots()
   int[] sol = new int[15]
   int i = 0
   While(i < sol.Length)
-    If(Toys.IsSlotAvailable("TT", i + 1, Utility.RandomFloat(0, 99.5) < MCM.fSwapChance))
+    bool swap = Utility.RandomFloat(0, 99.5) < MCM.fSwapChance && Toys.GetWornByType(i + 1)
+    bool avail = Toys.IsSlotAvailable("TT", i + 1)
+    If(avail || swap)
       sol[i] = MCM.TTypeWeights[i]
     Else
       sol[i] = 0
