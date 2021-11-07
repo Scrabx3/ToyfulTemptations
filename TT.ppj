@@ -37,6 +37,7 @@
     <ZipFiles Output="@Rel">
         <ZipFile Name="@ModName @Ver" RootDir="@ThisProject" Compression="deflate">
         	<Include>*.esp</Include>
+            <Include>Interface</Include>
             <Include>Scripts</Include>
             <Include>SKSE</Include>
             <Include>Seq</Include>
