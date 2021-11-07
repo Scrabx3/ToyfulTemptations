@@ -58,7 +58,7 @@ Function CreateEncounter(ObjectReference p, Actor a)
     Else
       chanceMult = 1.1
     EndIf
-  ElseIf(MCM.iLootType != 2)
+  ElseIf(!corpse && MCM.iLootType != 2)
     chanceMult = 1
   EndIf
   Debug.Trace("[TT] chanceMult: " + chanceMult)
@@ -86,20 +86,18 @@ Function CreateEncounter(ObjectReference p, Actor a)
     Location loc = a.GetCurrentLocation()
     If(!loc)
       trapChance *= MCM.fBaseChanceW
-    ElseIf(loc.HasKeyword(LocTypeHabitation))
-      trapChance *= MCM.fBaseChanceC
     ElseIf(loc.HasKeyword(LocTypeDungeon))
       trapChance *= MCM.fBaseChanceD
     Else
-      trapChance *= MCM.fBaseChanceW
+      trapChance *= MCM.fBaseChanceC
     EndIf
   Else
     trapChance *= MCM.fBaseChance
   EndIf
   Debug.Trace("[TT] Trap Chance: " + trapChance)
+  bool firstTrigger = true
   If(Utility.RandomFloat(0.0, 99.9) < trapChance)
     int[] freeSlots = CreateValidSlots()
-    bool firstTrigger = true
     bool break = false
     int i = 0
     While(i < MCM.iMaxDrops && break == false)
@@ -125,7 +123,15 @@ Function CreateEncounter(ObjectReference p, Actor a)
           Debug.SendAnimationEvent(a, "staggerStart")
         EndIf
         If(MCM.bTrapStrip)
-          a.UnequipAll()
+          Keyword SLNoStrip = Keyword.GetKeyword("SexLabNoStrip")
+          i = 0x01
+          While(i < 0x80000000)
+            Form tmp = a.GetWornForm(i)
+            If(tmp && !tmp.HasKeyword(Toys.ToysToy) && !tmp.HasKeyword(SLNoStrip))
+              a.UnequipItem(tmp, abSilent = true)
+            EndIf
+            i *= 2
+          EndWhile
           a.QueueNiNodeUpdate()
         EndIf
         If(msgOnce && MCM.bNotifyOnTrap)
@@ -145,7 +151,7 @@ Function CreateEncounter(ObjectReference p, Actor a)
       i += 1
     EndWhile
   EndIf
-  If(MCM.iTrapMethod == 0)
+  If(MCM.iTrapMethod == 0 && !firstTrigger)
     Debug.SendAnimationEvent(a, "BleedoutStop")
     FadeToBlackHoldImod.PopTo(FadeToBlackBackImod)
   EndIf
@@ -162,8 +168,9 @@ int[] Function CreateValidSlots()
   int[] sol = new int[15]
   int i = 0
   While(i < sol.Length)
-    bool swap = Utility.RandomFloat(0, 99.5) < MCM.fSwapChance && Toys.GetWornByType(i + 1)
-    bool avail = Toys.IsSlotAvailable("TT", i + 1)
+    bool worn = Toys.GetWornByType(i + 1)
+    bool swap = worn && Utility.RandomFloat(0, 99.5) < MCM.fSwapChance
+    bool avail = !worn && Toys.IsSlotAvailable("TT", i + 1)
     If(avail || swap)
       sol[i] = MCM.TTypeWeights[i]
     Else

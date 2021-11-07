@@ -9,7 +9,7 @@ string filepath = "../ToyfulTemptations/LootTable.json"
 ; Drops
 string[] lootTypeList
 int Property iLootType = 0 Auto Hidden
-float Property fBaseChance = 7.5 Auto Hidden
+float Property fBaseChance = 5.0 Auto Hidden
 bool Property bSplitChance = false Auto Hidden
 float Property fBaseChanceC = 2.0 Auto Hidden
 float Property fBaseChanceD = 7.5 Auto Hidden
@@ -17,16 +17,16 @@ float Property fBaseChanceW = 4.0 Auto Hidden
 float Property fArousalWeight = 0.4 Auto Hidden
 ; Container
 String[] TrapMethods
-int Property iMaxDrops = 4 Auto Hidden
-float Property fSwapChance = 33.0 Auto Hidden
+int Property iMaxDrops = 2 Auto Hidden
+float Property fSwapChance = 0.0 Auto Hidden
 bool Property bFilterEmpty = true Auto Hidden
-int Property iTrapMethod = 0 Auto Hidden
-bool Property bTrapStrip = true Auto Hidden
+int Property iTrapMethod = 2 Auto Hidden
+bool Property bTrapStrip = false Auto Hidden
 bool Property bNotifyOnTrap = false Auto Hidden
 float Property fToyChance = 10.0 Auto Hidden
 bool Property bMatchToy = true Auto Hidden
 ; Keys
-float Property fKeyChance = 5.0 Auto Hidden
+float Property fKeyChance = 7.0 Auto Hidden
 float Property fKeyChanceAdd = 30.0 Auto Hidden
 int[] Property iKeyWeight Auto Hidden
 {Key - 60, Tiny - 50, Exotic - 15, Tiny Exotic - 10}
@@ -63,8 +63,8 @@ Event OnConfigInit()
 	iKeyWeight = new int[4]
 	iKeyWeight[0] = 60
 	iKeyWeight[1] = 50
-	iKeyWeight[2] = 15
-	iKeyWeight[3] = 10
+	iKeyWeight[2] = 40
+	iKeyWeight[3] = 40
 
 	TTypeWeights = new int[15]
 	TTypeWeights[0] = 30
@@ -176,7 +176,7 @@ Event OnSliderOpenST()
 		SetSliderDialogInterval(0.5)
 	ElseIf(option[0] == "baseChanceD")
 		SetSliderDialogStartValue(fBaseChanceD)
-		SetSliderDialogDefaultValue(7)
+		SetSliderDialogDefaultValue(7.5)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(0.5)
 	ElseIf(option[0] == "baseChanceW")
@@ -191,12 +191,12 @@ Event OnSliderOpenST()
 		SetSliderDialogInterval(0.01)
 	ElseIf(option[0] == "MaxDrops")
 		SetSliderDialogStartValue(iMaxDrops)
-		SetSliderDialogDefaultValue(3)
+		SetSliderDialogDefaultValue(2)
 		SetSliderDialogRange(1, 15)
 		SetSliderDialogInterval(1)
 	ElseIf(option[0] == "SwapChance")
 		SetSliderDialogStartValue(fSwapChance)
-		SetSliderDialogDefaultValue(33)
+		SetSliderDialogDefaultValue(0)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(0.5)
 	ElseIf(option[0] == "regularToy")
@@ -206,7 +206,7 @@ Event OnSliderOpenST()
 		SetSliderDialogInterval(0.5)
 	ElseIf(option[0] == "KeyChance")
 		SetSliderDialogStartValue(fKeyChance)
-		SetSliderDialogDefaultValue(5)
+		SetSliderDialogDefaultValue(7)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(0.5)
 	ElseIf(option[0] == "KeyChanceAdd")

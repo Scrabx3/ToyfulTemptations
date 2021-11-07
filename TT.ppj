@@ -20,7 +20,7 @@
         <Import>@MO2\PapyrusUtil SE - Modders Scripting Utility Functions\Source\Scripts</Import>
         <Import>@MO2\Fores New Idles in Skyrim SE - FNIS SE\Source\Scripts</Import>
         <Import>@MO2\FNIS Creature Pack SE\Source\Scripts</Import>
-        <Import>@MO2\Toys Framework SE\scripts\Source</Import>
+        <Import>@MO2\Toys Framework SE\Source\scripts</Import>
         <Import>@MO2\Race Menu Sources\Source\Scripts</Import>
         <Import>@MO2\SexLab Framework\Source\Scripts</Import>
         <Import>@MO2\SexLab Aroused\Source\Scripts</Import>
