@@ -5,7 +5,7 @@ import StringUtil
 
 TTMCM Property MCM Auto
 ToysFramework Property Toys Auto
-slaFrameworkScr Property SLA Auto
+; slaFrameworkScr Property SLA Auto
 Actor Property PlayerRef Auto
 Keyword Property LocTypeHabitation Auto ; Stores LocTypeDwelling - TT 2.0
 Keyword Property LocTypeDungeon Auto
@@ -81,7 +81,7 @@ Function CreateEncounter(ObjectReference p, Actor a)
       i += 1
     EndWhile
   EndIf
-  float trapChance = ((SLA.GetActorArousal(a) as float / 100) * MCM.fArousalWeight + 1) * (1/chanceMult)
+  float trapChance = ((Toys.getrousing() as float / 100) * MCM.fArousalWeight + 1) * (1/chanceMult)
   If(MCM.bSplitChance)
     Location loc = a.GetCurrentLocation()
     If(!loc)
