@@ -137,11 +137,11 @@ Function CreateEncounter(ObjectReference p, Actor a)
         If(msgOnce && MCM.bNotifyOnTrap)
           String intro = ""
           If(corpse)
-            intro = "As you look through the Corpse"
+            intro = "As you look through the corpse"
           Else
             intro = "As you open the chest"
           EndIf
-          Debug.MessageBox(intro + ", a narcotic scent overcomes you and knocks you out. When you wake backup, some strange armor has wrapped itself tight around your skin.")
+          Debug.MessageBox(intro + ", a narcotic scent overcomes you and knocks you out. When you wake back up, some strange armor has wrapped itself tight around your skin.")
           msgOnce = false
         EndIf
       EndIf
