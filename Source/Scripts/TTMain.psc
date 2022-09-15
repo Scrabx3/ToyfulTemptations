@@ -14,7 +14,7 @@ Faction Property PreyFaction Auto
 Race Property ChickenRace Auto
 Race Property HareRace Auto ; Bunny
 Key[] Property ToysKeys Auto
-{Key, Tiny, Exotic, Tiny Exotic}
+{Key | Tiny | Exotic | Tiny Exotic}
 ; Event
 ImageSpaceModifier Property FadeToBlackFastImod Auto ; Stores Vanilla slow one - TT 2.0
 ImageSpaceModifier Property FadeToBlackHoldImod Auto
