@@ -1,3 +1,5 @@
 .release
 .vscode
 *.code-workspace
+meta.ini
+*.pex
