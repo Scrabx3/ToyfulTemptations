@@ -26,6 +26,8 @@ bool Property bTrapStrip = false Auto Hidden
 bool Property bNotifyOnTrap = false Auto Hidden
 float Property fToyChance = 10.0 Auto Hidden
 bool Property bMatchToy = true Auto Hidden
+; Misc
+GlobalVariable Property gToyMerchant Auto
 ; Keys
 float Property fKeyChance = 7.0 Auto Hidden
 float Property fKeyChanceAdd = 30.0 Auto Hidden
@@ -96,11 +98,11 @@ Event OnPageReset(String Page)
   If(Page == "$TT_General")
 		AddHeaderOption("$TT_Drops")
 		AddMenuOptionST("lootType", "$TT_LootType", lootTypeList[iLootType])
-    AddSliderOptionST("baseChance", "$TT_BaseChance", fBaseChance, "{1}%", getFlag(!bSplitChance))
+		AddSliderOptionST("baseChance", "$TT_BaseChance", fBaseChance, "{1}%", getFlag(!bSplitChance))
 		AddToggleOptionST("splitChance", "$TT_SplitChance", bSplitChance)
-    AddSliderOptionST("baseChanceC", "$TT_SplitChanceC", fBaseChanceC, "{1}%", getFlag(bSplitChance))
-    AddSliderOptionST("baseChanceD", "$TT_SplitChanceD", fBaseChanceD, "{1}%", getFlag(bSplitChance))
-    AddSliderOptionST("baseChanceW", "$TT_SplitChanceW", fBaseChanceW, "{1}%", getFlag(bSplitChance))
+		AddSliderOptionST("baseChanceC", "$TT_SplitChanceC", fBaseChanceC, "{1}%", getFlag(bSplitChance))
+		AddSliderOptionST("baseChanceD", "$TT_SplitChanceD", fBaseChanceD, "{1}%", getFlag(bSplitChance))
+		AddSliderOptionST("baseChanceW", "$TT_SplitChanceW", fBaseChanceW, "{1}%", getFlag(bSplitChance))
 		AddEmptyOption()
 		AddSliderOptionST("arousalWeight", "$TT_ArousalWeight", fArousalWeight, "{2}")
 		SetCursorPosition(1)
@@ -109,6 +111,7 @@ Event OnPageReset(String Page)
 		AddSliderOptionST("SwapChance", "$TT_SwapChance", fSwapChance, "{1}%")
 		AddToggleOptionST("filterEmpty", "$TT_FilterEmpty", bFilterEmpty)
 		AddToggleOptionST("filterOwned", "$TT_FilterOwned", bFilterOwned)
+		AddToggleOptionST("toyMerchant", "$TT_ToyMerchant", gToyMerchant.GetValue() != 0)
 		AddMenuOptionST("trapMethod", "$TT_TrapMethod", TrapMethods[iTrapMethod])
 		AddToggleOptionST("trapStrip", "$TT_TrapStrip", bTrapStrip)
 		AddToggleOptionST("trapNotify", "$TT_TrapNotify", bNotifyOnTrap)
@@ -161,6 +164,9 @@ Event OnSelectST()
 	ElseIf(option[0] == "equipMatching")
 		bMatchToy = !bMatchToy
 		SetToggleOptionValueST(bMatchToy)
+	ElseIf(option[0] == "toyMerchant")
+		gToyMerchant.Value = 1 - gToyMerchant.GetValueInt()
+		SetToggleOptionValueST(gToyMerchant.GetValue() != 0)
 	EndIf
 EndEvent
 
@@ -337,6 +343,8 @@ Event OnHighlightST()
 		SetInfoText("$TT_KeyChanceHighlight")
 	ElseIf(option[0] == "KeyChanceAdd")
 		SetInfoText("$TT_KeyChanceAddHighlight")
+	ElseIf(option[0] == "toyMerchant")
+		SetInfoText("$TT_ToyMerchantHighlight")
 	EndIf
 EndEvent
 
