@@ -19,6 +19,7 @@ float Property fArousalWeight = 0.4 Auto Hidden
 String[] TrapMethods
 int Property iMaxDrops = 2 Auto Hidden
 float Property fSwapChance = 0.0 Auto Hidden
+bool Property bFilterOwned = true Auto Hidden
 bool Property bFilterEmpty = true Auto Hidden
 int Property iTrapMethod = 2 Auto Hidden
 bool Property bTrapStrip = false Auto Hidden
@@ -107,6 +108,7 @@ Event OnPageReset(String Page)
 		AddSliderOptionST("MaxDrops", "$TT_MaxDrops", iMaxDrops)
 		AddSliderOptionST("SwapChance", "$TT_SwapChance", fSwapChance, "{1}%")
 		AddToggleOptionST("filterEmpty", "$TT_FilterEmpty", bFilterEmpty)
+		AddToggleOptionST("filterOwned", "$TT_FilterOwned", bFilterOwned)
 		AddMenuOptionST("trapMethod", "$TT_TrapMethod", TrapMethods[iTrapMethod])
 		AddToggleOptionST("trapStrip", "$TT_TrapStrip", bTrapStrip)
 		AddToggleOptionST("trapNotify", "$TT_TrapNotify", bNotifyOnTrap)
@@ -144,6 +146,9 @@ Event OnSelectST()
 		SetOptionFlagsST(getFlag(bSplitChance), true, "baseChanceC")
 		SetOptionFlagsST(getFlag(bSplitChance), true, "baseChanceD")
 		SetOptionFlagsST(getFlag(bSplitChance), false, "baseChanceW")
+	ElseIf(option[0] == "filterOwned")
+		bFilterOwned = !bFilterOwned
+		SetToggleOptionValueST(bFilterOwned)
 	ElseIf(option[0] == "filterEmpty")
 		bFilterEmpty = !bFilterEmpty
 		SetToggleOptionValueST(bFilterEmpty)
@@ -314,6 +319,8 @@ Event OnHighlightST()
 		SetInfoText("$TT_MaxDropsHighlight")
 	ElseIf(option[0] == "SwapChance")
 		SetInfoText("$TT_SwapChanceHighlight")
+	ElseIf(option[0] == "FilterOwned")
+		SetInfoText("$TT_FilterOwnedHighlight")
 	ElseIf(option[0] == "FilterEmpty")
 		SetInfoText("$TT_FilterEmptyHighlight")
 	ElseIf(option[0] == "trapMethod")

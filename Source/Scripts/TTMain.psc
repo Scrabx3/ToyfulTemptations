@@ -42,13 +42,14 @@ Event OnMenuOpen(string Menu)
   EndWhile
 EndEvent
 
-Function CreateEncounter(ObjectReference p, Actor a)
-  If(Toys.IsBusy(false, false, true) || chestCache.Find(p) >= 0 || (MCM.bFilterEmpty && p.GetNumItems() == 0) || a != PlayerRef)
-    Debug.Trace("[TT] Cancel Encounter Creation due to invalid Entry Checks")
+Function CreateEncounter(ObjectReference chest, Actor a)
+  If(a != PlayerRef || Toys.IsBusy(false, false, true) || chestCache.Find(chest) >= 0 || (MCM.bFilterEmpty && chest.GetNumItems() == 0) \
+    || (MCM.bFilterOwned && chest.GetActorOwner() == PlayerRef.GetActorBase()))
+    Debug.Trace("[TT] Cancel Encounter Creation due to invalid Base Checks")
     return
   EndIf
   Debug.Trace("[TT] Creating Encounter")
-  Actor corpse = p as Actor
+  Actor corpse = chest as Actor
   float chanceMult = 0
   If(corpse && MCM.iLootType != 1)
      If(corpse.HasKeyword(ActorTypeDragon))
@@ -68,7 +69,7 @@ Function CreateEncounter(ObjectReference p, Actor a)
     Debug.Trace("[TT] Adding Non Trapped Item To Container")
     Armor toy = Toys.GetToy("TT", available = false, prefer = false)
     If(toy)
-      p.AddItem(toy)
+      chest.AddItem(toy)
     EndIf
     n += 1
   EndWhile
@@ -77,7 +78,7 @@ Function CreateEncounter(ObjectReference p, Actor a)
     Debug.Trace("[TT] Adding Keys to Container: " + keys.Length)
     int i = 0
     While(i < keys.Length)
-      p.AddItem(keys[i], 1, true)
+      chest.AddItem(keys[i], 1, true)
       i += 1
     EndWhile
   EndIf
@@ -118,7 +119,7 @@ Function CreateEncounter(ObjectReference p, Actor a)
         ElseIf(MCM.iTrapMethod == 2) ; Rushed
           If(a == PlayerRef)
             RushedImod.Apply()
-            Game.ShakeCamera(p, 0.3, 0.7)
+            Game.ShakeCamera(chest, 0.3, 0.7)
           EndIf
           Debug.SendAnimationEvent(a, "staggerStart")
         EndIf
@@ -157,7 +158,7 @@ Function CreateEncounter(ObjectReference p, Actor a)
   EndIf
   Game.EnablePlayerControls()
   ; Cache
-  chestCache[cacheIndex] = p
+  chestCache[cacheIndex] = chest
   cacheIndex += 1
   If(cacheIndex >= chestCache.Length)
     cacheIndex = 0
